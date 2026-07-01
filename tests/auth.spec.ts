@@ -8,7 +8,7 @@ test.describe('Authentication', () => {
     await page.goto('/');
   });
 
-  test('valid login lands on inventory page', async ({ page }) => {
+  test('valid login lands on inventory page', { tag: '@smoke' }, async ({ page }) => {
     await page.fill('#user-name', VALID_USER);
     await page.fill('#password', VALID_PASS);
     await page.click('#login-button');
@@ -17,7 +17,7 @@ test.describe('Authentication', () => {
     await expect(page.locator('.title')).toHaveText('Products');
   });
 
-  test('invalid password shows error message', async ({ page }) => {
+  test('invalid password shows error message', { tag: '@regression' }, async ({ page }) => {
     await page.fill('#user-name', VALID_USER);
     await page.fill('#password', 'wrong_password');
     await page.click('#login-button');
@@ -26,7 +26,7 @@ test.describe('Authentication', () => {
     await expect(page.locator('[data-test="error"]')).toContainText('Username and password do not match');
   });
 
-  test('locked out user sees lock error', async ({ page }) => {
+  test('locked out user sees lock error', { tag: '@regression' }, async ({ page }) => {
     await page.fill('#user-name', 'locked_out_user');
     await page.fill('#password', VALID_PASS);
     await page.click('#login-button');
@@ -34,7 +34,7 @@ test.describe('Authentication', () => {
     await expect(page.locator('[data-test="error"]')).toContainText('locked out');
   });
 
-  test('logout returns to login page', async ({ page }) => {
+  test('logout returns to login page', { tag: '@smoke' }, async ({ page }) => {
     await page.fill('#user-name', VALID_USER);
     await page.fill('#password', VALID_PASS);
     await page.click('#login-button');
