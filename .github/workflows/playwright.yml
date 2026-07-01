@@ -11,7 +11,12 @@ on:
       tags:
         description: 'Test scenario tags'
         required: false
-        type: boolean
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - '@smoke'
+          - '@regression'
       environment:
         description: 'Environment to run tests against'
         type: environment
@@ -42,7 +47,13 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Run tests
-        run: npx playwright test --workers=${{ github.event.inputs.workers }}
+        run: |
+          TAGS="${{ github.event.inputs.tags }}"
+          if [ "$TAGS" = "all" ]; then
+            npx playwright test --workers=${{ github.event.inputs.workers }}
+          else
+            npx playwright test --workers=${{ github.event.inputs.workers }} --grep "$TAGS"
+          fi
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
