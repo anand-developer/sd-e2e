@@ -3,12 +3,11 @@ name: Playwright Tests
 on: 
   workflow_dispatch:
     inputs:
-      logLevel:
-        description: 'Log level'
+      workers:
+        description: 'No of parallel test runs'
         required: true
-        default: 'warning'
-        type: choice
-        options: [info, warning, debug]
+        default: '2'
+        type: string
       tags:
         description: 'Test scenario tags'
         required: false
@@ -43,7 +42,7 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Run tests
-        run: npx playwright test
+        run: npx playwright test --workers=${{ github.event.inputs.workers }}
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
