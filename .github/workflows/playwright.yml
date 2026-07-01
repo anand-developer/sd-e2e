@@ -9,7 +9,7 @@ on:
         default: '2'
         type: string
       tags:
-        description: 'Test scenario tags'
+        description: 'Tags'
         required: false
         default: 'all'
         type: choice
@@ -17,10 +17,14 @@ on:
           - all
           - '@smoke'
           - '@regression'
-      environment:
-        description: 'Environment to run tests against'
-        type: environment
+      base_url:
+        description: 'Dashboard URL'
         required: true
+        default: 'https://www.saucedemo.com'
+        type: choice
+        options:
+          - 'https://www.saucedemo.com'
+          - 'https://www.saucedemo.com'
   #push:
     #branches: [main, master]
   #pull_request:
@@ -47,6 +51,8 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Run tests
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url }}
         run: |
           TAGS="${{ github.event.inputs.tags }}"
           if [ "$TAGS" = "all" ]; then
