@@ -30,12 +30,17 @@ on:
         required: true
         default: '1'
         type: string
+      timeout:
+        description: 'Job timeout (minutes)'
+        required: true
+        default: '60'
+        type: string
 
 jobs:
   test:
     name: E2E
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: ${{ fromJSON(github.event.inputs.timeout) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
