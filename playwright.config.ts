@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import 'dotenv/config'
+// require('dotenv').config();
 
 export default defineConfig({
   testDir: './tests',
@@ -7,9 +9,9 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : undefined,
-  reporter: 'list',
+  reporter: [['list'], ['html', {open: 'never', outputFile: './results.html'}]],
   use: {
-    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',
+    baseURL: process.env.BASE_URL,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },

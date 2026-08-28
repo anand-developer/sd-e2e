@@ -1,0 +1,11 @@
+node_modules
+
+.env
+
+playwright-report
+test-results
+
+github-actions-issues.html
+k8s-learning-plan.html
+project-log.html
+test-infra-options.md

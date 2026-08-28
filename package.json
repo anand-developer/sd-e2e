@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --workers=4",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report"
   },
@@ -12,6 +12,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.60.0"
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.4.0",
+    "dotenv": "^17.4.2"
   }
 }
