@@ -23,7 +23,7 @@ on:
           - '@smoke'
           - '@regression'
       base_url:
-        description: 'Dashboard URL'
+        description: 'App URL'
         required: true
         default: 'https://www.saucedemo.com'
         type: choice
