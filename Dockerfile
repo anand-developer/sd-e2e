@@ -8,4 +8,6 @@ RUN npm ci
 
 COPY . .
 
+ENV BASE_URL=https://www.saucedemo.com
+
 CMD ["npx", "playwright", "test"]
