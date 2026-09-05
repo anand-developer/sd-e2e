@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : undefined,
-  reporter: [['list'], ['html', {open: 'never', outputFile: './results.html'}]],
+  reporter: [['list'], ['html', { open: 'never', outputFile: './results.html' }], ['json', { outputFile: './results.json' }]],
   use: {
     baseURL: process.env.BASE_URL,
     screenshot: 'only-on-failure',

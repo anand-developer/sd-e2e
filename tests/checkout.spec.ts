@@ -10,7 +10,7 @@ test.describe('Checkout', () => {
     await page.click('.shopping_cart_link');
   });
 
-  test('complete checkout flow', { tag: '@smoke' }, async ({ page }) => {
+  test('complete checkout flow', { tag: ['@app', '@smoke'], annotation: { type: 'id', description: 'CHK-001' } }, async ({ page }) => {
     await page.click('[data-test="checkout"]');
     await expect(page).toHaveURL(/checkout-step-one/);
 
@@ -28,7 +28,7 @@ test.describe('Checkout', () => {
     await expect(page.locator('.complete-header')).toHaveText('Thank you for your order!');
   });
 
-  test('checkout blocked with empty first name', { tag: '@regression' }, async ({ page }) => {
+  test('checkout blocked with empty first name', { tag: ['@app', '@regression'], annotation: { type: 'id', description: 'CHK-002' } }, async ({ page }) => {
     await page.click('[data-test="checkout"]');
     await page.fill('[data-test="lastName"]', 'Doe');
     await page.fill('[data-test="postalCode"]', '10001');
@@ -37,7 +37,7 @@ test.describe('Checkout', () => {
     await expect(page.locator('[data-test="error"]')).toContainText('First Name is required');
   });
 
-  test('cancel checkout returns to cart', { tag: '@regression' }, async ({ page }) => {
+  test('cancel checkout returns to cart', { tag: ['@app', '@regression'], annotation: { type: 'id', description: 'CHK-003' } }, async ({ page }) => {
     await page.click('[data-test="checkout"]');
     await page.click('[data-test="cancel"]');
 
