@@ -1,0 +1,118 @@
+# Dashboard-driven E2E run.
+#
+# The QA dashboard dispatches this workflow (workflow_dispatch) when a run is
+# triggered with the GitHub Actions backend. It runs the suite INSIDE the Docker
+# image (the same image reused later by Cloud Run Jobs / Cloud Build) and, when
+# handed an ingest_url + run_token, the in-container dashboard reporter streams
+# results back so the run appears live under Runs.
+#
+# Every input the dashboard adapter sends must be declared here: GitHub rejects a
+# dispatch that carries an input the workflow does not declare (422). browser,
+# env and run_id are accepted for forward-compatibility but not used yet (the
+# Playwright config currently defines only the chromium project).
+#
+# The manual workflows (playwright.yml, playwright-docker.yml) are untouched.
+
+name: Dashboard E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Dashboard run id (informational)'
+        required: false
+        type: string
+        default: ''
+      tags:
+        description: 'Space-separated tag filter, e.g. "app smoke" (empty = all)'
+        required: false
+        type: string
+        default: ''
+      env:
+        description: 'Target environment name (informational)'
+        required: false
+        type: string
+        default: ''
+      base_url:
+        description: 'App URL under test'
+        required: false
+        type: string
+        default: 'https://www.saucedemo.com'
+      browser:
+        description: 'Browser/project (informational; only chromium today)'
+        required: false
+        type: string
+        default: ''
+      workers:
+        description: 'Parallel workers (empty = config default)'
+        required: false
+        type: string
+        default: ''
+      retries:
+        description: 'Retry count (empty = config default)'
+        required: false
+        type: string
+        default: ''
+      ingest_url:
+        description: 'Dashboard ingest URL the reporter POSTs to'
+        required: false
+        type: string
+        default: ''
+      run_token:
+        description: 'Per-run bearer token for the ingest endpoint'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  e2e:
+    name: E2E (dashboard-driven)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      # Buildx gives us a builder that can read/write the GitHub Actions layer cache.
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # build-push-action wires up the gha cache token that a raw buildx run lacks.
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: sd-e2e:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Map the dispatch inputs to the container's env names. Values are set at the
+      # step level and passed through with `docker run -e VAR` (no =value), so the
+      # run_token never lands on the command line that gets echoed to the log.
+      - name: Run the tests in the container
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+          TAGS: ${{ inputs.tags }}
+          WORKERS: ${{ inputs.workers }}
+          RETRIES: ${{ inputs.retries }}
+          INGEST_URL: ${{ inputs.ingest_url }}
+          RUN_TOKEN: ${{ inputs.run_token }}
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/reports:/sd-e2e/playwright-report" \
+            -e BASE_URL \
+            -e TAGS \
+            -e WORKERS \
+            -e RETRIES \
+            -e INGEST_URL \
+            -e RUN_TOKEN \
+            sd-e2e:ci
+
+      - name: Upload the report
+        uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: reports/
+          retention-days: 7
